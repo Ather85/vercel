@@ -1,12 +1,11 @@
-# api/index.py
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
 import json
+import os
 
 app = FastAPI()
 
-# Enable CORS for all origins (needed for fetch() to work)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,12 +13,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load telemetry bundle (assuming it's stored in a JSON file in repo)
-with open("telemetry.json") as f:
-    telemetry_data = json.load(f)
+# Try to load telemetry data
+telemetry_data = []
+if os.path.exists("telemetry.json"):
+    with open("telemetry.json") as f:
+        telemetry_data = json.load(f)
 
 @app.post("/analytics")
 async def analytics(request: Request):
+    if not telemetry_data:
+        return {"error": "telemetry.json not found or empty"}
+
     body = await request.json()
     regions = body.get("regions", [])
     threshold = body.get("threshold_ms", 0)
