@@ -6,14 +6,20 @@ import os
 
 app = FastAPI()
 
+# ✅ Enable CORS for all origins and methods
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["POST"],
-    allow_headers=["*"],
+    allow_origins=["*"],      # allow all origins
+    allow_methods=["*"],      # allow POST, GET, OPTIONS, etc.
+    allow_headers=["*"],      # allow all headers
 )
 
-# Try to load telemetry data
+# ✅ Root route for quick testing
+@app.get("/")
+def root():
+    return {"message": "Hello from FastAPI with CORS enabled"}
+
+# ✅ Load telemetry data if file exists
 telemetry_data = []
 if os.path.exists("telemetry.json"):
     with open("telemetry.json") as f:
